@@ -97,3 +97,165 @@ fn check_year(year: &str, min: u32, max: u32) -> bool {
         Err(_) => false,
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn test_valid_year(name: &str, year: &str) -> bool{
+        let mut passport = HashMap::new();
+        passport.insert(String::from(name), String::from(year));
+        valid_eyr(&passport)
+    }
+
+    #[test]
+    fn test_valid_eyr() {
+        assert!(test_valid_year("eyr", "2025"));
+    }
+
+    #[test]
+    fn test_valid_eyr_min_year() {
+        assert!(test_valid_year("eyr", "2020"));
+    }
+
+    #[test]
+    fn test_valid_eyr_max_year() {
+        assert!(test_valid_year("eyr", "2030"));
+    }
+
+    #[test]
+    fn test_invalid_eyr_year_alphanum() {
+        assert!(!test_valid_year("eyr", "abcd"));
+    }
+
+    #[test]
+    fn test_invalid_eyr_year_under_limit() {
+        assert!(!test_valid_year("eyr", "2000"))
+
+    }
+
+    #[test]
+    fn test_invalid_eyr_year_over_limit() {
+        assert!(!test_valid_year("eyr", "2031"))
+    }
+
+    fn test_valid_height(name: &str, height: &str) -> bool {
+        let mut passport = HashMap::new();
+        passport.insert(String::from(name), String::from(height));
+        valid_height(&passport)
+    }
+
+    #[test]
+    fn test_valid_height_inches() {
+        assert!(test_valid_height("hgt", "60in"));
+    }
+
+    #[test]
+    fn test_valid_height_cm() {
+        assert!(test_valid_height("hgt", "190cm"));
+    }
+
+    #[test]
+    fn test_invalid_height_inches() {
+        assert!(!test_valid_height("hgt", "190in"));
+    }
+
+    #[test]
+    fn test_invalid_height_cm() {
+        assert!(!test_valid_height("hgt", "60cm"));
+    }
+    
+    #[test]
+    fn test_invalid_height_wrong_unit() {
+        assert!(!test_valid_height("hgt", "175mm"));
+    }
+
+    #[test]
+    fn test_invalid_height_no_unit() {
+        assert!(!test_valid_height("hgt", "175"));
+    }
+
+    #[test]
+    fn test_invalid_height_no_number() {
+        assert!(!test_valid_height("hgt", "aaacm"));
+    }
+
+    fn test_valid_pid(name: &str, pid: &str) -> bool {
+        let mut passport = HashMap::new();
+        passport.insert(String::from(name), String::from(pid));
+        valid_pid(&passport)
+    }
+
+    #[test]
+    fn test_valid_pid_starting_zeros() {
+        assert!(test_valid_pid("pid", "000456789"));
+    }
+
+    #[test]
+    fn test_invalid_pid() {
+        assert!(!test_valid_pid("pid", "0123456789"));
+    }
+
+    #[test]
+    fn test_a_valid_passport_with_cid() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980 hcl:#623a2f cid:88";
+        assert!(is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_a_valid_passport_without_cid() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980 hcl:#623a2f";
+        assert!(is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_invalid_passport_missing_pid() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980 hcl:#623a2f";
+        assert!(!is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_invalid_passport_missing_hgt() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 ecl:grn iyr:2012 eyr:2030 byr:1980 hcl:#623a2f";
+        assert!(!is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_invalid_passport_missing_ecl() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 hgt:74in iyr:2012 eyr:2030 byr:1980 hcl:#623a2f";
+        assert!(!is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_a_valid_passport_without_iyr() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 hgt:74in ecl:grn eyr:2030 byr:1980 hcl:#623a2f";
+        assert!(!is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_invalid_passport_missing_eyr() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 hgt:74in ecl:grn iyr:2012 byr:1980 hcl:#623a2f";
+        assert!(!is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_invalid_passport_missing_byr() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 hgt:74in ecl:grn iyr:2012 hcl:#623a2f";
+        assert!(!is_valid(&passport, &required_fields));
+    }
+
+    #[test]
+    fn test_invalid_passport_missing_hcl() {
+        let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passport = "pid:087499704 hgt:74in ecl:grn iyr:2012 byr:1980";
+        assert!(!is_valid(&passport, &required_fields));
+    }
+}
