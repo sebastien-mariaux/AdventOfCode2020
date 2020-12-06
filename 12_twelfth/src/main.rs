@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs;
 
 fn main() {
@@ -14,6 +15,26 @@ fn count_for_group(answers: &str) -> u32 {
         .filter(|letter| members.iter().all(|x| x.contains(*letter) ))
         .collect::<String>()
         .len() as u32
+}
+
+ // Alternative solution 
+fn _count_for_group(answers: &str) -> u32 {
+    let mut members = answers
+        .split("\n")
+        .map(|x| x.chars().collect::<HashSet<char>>())
+        .collect::<Vec<HashSet<char>>>();
+    match members.len() {
+        1 => members[0].len() as u32,
+        _ => {
+            let first_set = members.pop().unwrap();
+            members
+                .iter()
+                .fold(first_set, |acc, set| {
+                    acc.intersection(set).map(|x| *x).collect()
+                })
+                .len() as u32
+        }
+    }
 }
 
 #[cfg(test)]
