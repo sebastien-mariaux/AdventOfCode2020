@@ -6,7 +6,6 @@ fn main() {
     println!("And the result is {}", result);
 }
 
-#[derive(Copy, Clone)]
 struct Boat {
     waypoint_x: i32,
     waypoint_y: i32,

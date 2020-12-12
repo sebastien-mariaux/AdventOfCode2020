@@ -6,7 +6,6 @@ fn main() {
     println!("And the result is {}", result);
 }
 
-#[derive(Copy, Clone)]
 struct Boat {
     facing: char,
     x: i32,
@@ -26,7 +25,10 @@ impl Boat {
         }
     }
 
-    fn move_toward(mut self, direction: char, value: u32) -> Boat {
+    fn move_toward(mut self, mut direction: char, value: u32) -> Boat {
+        if direction == 'F' {
+            direction = self.facing;
+        }
         match direction {
             'N' => self.y += value as i32,
             'S' => self.y -= value as i32,
@@ -94,7 +96,7 @@ fn solve_puzzle(file_name: &str) -> u32 {
             'W' => boat.move_toward('W', value),
             'L' => boat.turn('L', value),
             'R' => boat.turn('R', value),
-            'F' => boat.move_toward(boat.facing, value),
+            'F' => boat.move_toward('F', value),
             _ => boat,
         };
     }
