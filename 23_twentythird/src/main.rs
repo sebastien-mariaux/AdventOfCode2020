@@ -87,8 +87,6 @@ fn solve_puzzle(file_name: &str) -> u32 {
         )
     });
     for (instruction, value) in iterator {
-        println!("Instruction {}, value {}", instruction, value);
-
         boat = match instruction {
             'N' => boat.move_toward('N', value),
             'S' => boat.move_toward('S', value),
@@ -99,8 +97,6 @@ fn solve_puzzle(file_name: &str) -> u32 {
             'F' => boat.move_toward(boat.facing, value),
             _ => boat,
         };
-        println!("x {}, y {}", boat.x, boat.y);
-        println!("{}", boat.facing);
     }
 
     boat.distance()
@@ -117,5 +113,11 @@ mod test {
     #[test]
     fn test_example_data() {
         assert_eq!(25, solve_puzzle("example_data"));
+    }
+
+
+    #[test]
+    fn test_input() {
+        assert_eq!(1687, solve_puzzle("input"));
     }
 }

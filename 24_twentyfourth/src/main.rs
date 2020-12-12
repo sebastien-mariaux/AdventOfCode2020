@@ -117,4 +117,9 @@ mod test {
     fn test_example_data() {
         assert_eq!(286, solve_puzzle("example_data"));
     }
+
+    #[test]
+    fn test_input() {
+        assert_eq!(20873, solve_puzzle("input"));
+    }
 }
