@@ -8,3 +8,7 @@
 # already existing elements were commented out
 
 #/target
+/sandbox/*
+*target/*
+*/Cargo.lock
+*.lock
