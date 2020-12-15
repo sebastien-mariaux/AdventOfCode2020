@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -13,11 +12,10 @@ fn solve_puzzle(file_name: &str) -> u64 {
     let data = read_data(file_name);
     let mut memory: HashMap<u64, u64> = HashMap::new();
     let mut mask = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".to_string();
-    let mut permutations: HashMap<u32, HashSet<Vec<char>>> = HashMap::new();
+    let mut permutations: HashMap<u32, Vec<Vec<char>>> = HashMap::new();
     let mut x_count: u32 = mask.chars().filter(|x| *x == 'X').count() as u32;
 
-    data.lines().enumerate().for_each(|(idx, line)| {
-        println!("Running instruction {}", idx);
+    data.lines().for_each(|line| {
         match line.split(" = ").next().unwrap() {
             "mask" => {
                 mask = line.replace("mask = ", "");
@@ -41,11 +39,7 @@ fn solve_puzzle(file_name: &str) -> u64 {
     memory.values().sum()
 }
 
-fn get_values(
-    line: &str,
-    mask: &String,
-    permutations: &HashSet<Vec<char>>,
-) -> (HashSet<String>, u64) {
+fn get_values(line: &str, mask: &String, permutations: &Vec<Vec<char>>) -> (HashSet<String>, u64) {
     let re = Regex::new(r"mem\[(?P<key>\d+)\] = (?P<value>\d+)").unwrap();
     let caps = re.captures(line).unwrap();
     let memory_address = write_binary(caps["key"].to_string().parse::<u64>().unwrap());
@@ -74,26 +68,23 @@ fn read_binary(binary: String) -> u64 {
         })
 }
 
-fn get_permutations(x_count: u32) -> HashSet<Vec<char>> {
-    let mut alt_values = Vec::new();
-    for _ in 0..x_count {
-        alt_values.push('1');
-        alt_values.push('0');
+fn get_permutations(x_count: u32) -> Vec<Vec<char>> {
+    let mut permutations: Vec<Vec<char>> = vec![vec!['0'], vec!['1']];
+    for _ in 1..x_count {
+        let mut new_permutations = vec![];
+        for mut p in permutations {
+            let mut duplicate = p.clone();
+            p.push('0');
+            duplicate.push('1');
+            new_permutations.push(duplicate);
+            new_permutations.push(p);
+        }
+        permutations = new_permutations
     }
-
-    let mut permutations = HashSet::new();
-    alt_values
-        .iter()
-        .map(|x| *x)
-        .permutations(x_count as usize)  // This takes WAY too long 
-        .unique()
-        .for_each(|permut| {
-            permutations.insert(permut);
-        });
     permutations
 }
 
-fn apply_mask(input: String, mask: &String, permutations: &HashSet<Vec<char>>) -> HashSet<String> {
+fn apply_mask(input: String, mask: &String, permutations: &Vec<Vec<char>>) -> HashSet<String> {
     let mut addresses = HashSet::new();
 
     permutations.iter().for_each(|permut| {
@@ -125,9 +116,8 @@ mod test {
     }
 
     #[test]
-    #[ignore = "Too long"]
     fn test_input() {
-        assert_eq!(14925946402938, solve_puzzle("input"));
+        assert_eq!(3706820676200, solve_puzzle("input"));
     }
 
     #[test]
@@ -179,7 +169,7 @@ mod test {
         let input = "000000000000000000000000000000011010".to_string();
         let mask = "00000000000000000000000000000000X0XX".to_string();
         let mut output = HashSet::new();
-        output.insert("0000unoptimized00000000000000000000000000010000".to_string());
+        output.insert("000000000000000000000000000000010000".to_string());
         output.insert("000000000000000000000000000000010001".to_string());
         output.insert("000000000000000000000000000000010010".to_string());
         output.insert("000000000000000000000000000000010011".to_string());
@@ -192,8 +182,10 @@ mod test {
 
     #[test]
     fn test_permutations() {
-        println!("{}", get_permutations(2).len());
-        println!("{}", get_permutations(3).len());
-        println!("{}", get_permutations(7).len());
+        assert_eq!(4, get_permutations(2).len());
+        assert_eq!(8, get_permutations(3).len());
+        assert_eq!(128, get_permutations(7).len());
+        assert_eq!(256, get_permutations(8).len());
+        assert_eq!(512, get_permutations(9).len());
     }
 }
