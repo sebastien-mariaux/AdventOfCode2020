@@ -1,32 +1,37 @@
 use std::fs;
 
 fn main() {
-    let mut numbers = read_numbers();
-    numbers.sort();
+    let result = solve_puzzle("input");
+    println!("And the result is {}", result);
+}
 
+fn solve_puzzle(file_name: &str) -> u32 {
+    let data = read_data(file_name);
+    let mut numbers = data
+        .lines()
+        .map(|x| x.parse::<u32>().unwrap())
+        .collect::<Vec<u32>>();
+    numbers.sort_unstable();
     loop {
         let number = numbers.pop().unwrap();
         let target = 2020 - number;
 
-        if (numbers.iter().find(|&&x| x == target)).is_some() {
-            println!(
-                "And the result is {} which is the product of {} and {}",
-                target * number,
-                target,
-                number
-            );
-            break;
+        if numbers.iter().any(|x| x == &target) {
+            break target * number;
         }
     }
 }
 
-fn read_numbers() -> Vec<u32> {
-    let filename = "input";
-    let data = fs::read_to_string(filename).expect("Something went wrong reading the file");
-    data.lines()
-        .map(|x| match x.parse::<u32>() {
-            Ok(x) => x,
-            Err(_) => 0,
-        })
-        .collect::<Vec<u32>>()
+fn read_data(file_name: &str) -> String {
+    fs::read_to_string(file_name).expect("Error")
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_solution() {
+        assert_eq!(319531, solve_puzzle("input"));
+    }
 }
