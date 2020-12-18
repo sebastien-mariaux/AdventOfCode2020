@@ -16,35 +16,23 @@ fn read_data(file_name: &str) -> String {
 }
 
 fn compute_simple(expression: &str) -> u64 {
-    let mut next_operation = '+';
-    expression
-        .replace(")", "")
-        .replace("(", "")
-        .split(' ')
-        .fold(0, |result, value| match value {
-            "+" => {
-                next_operation = '+';
-                result
-            }
-            "*" => {
-                next_operation = '*';
-                result
-            }
-            _ => {
-                let number = value.parse::<u64>().unwrap();
-                match next_operation {
-                    '+' => result + number,
-                    '*' => result * number,
-                    _ => panic!("Qu'es aquo ?"),
-                }
-            }
-        })
+    let mut text = expression.replace(")", "").replace("(", "").to_string();
+    let re = Regex::new(r"(?P<segment>\d+( \+ \d+)+)").unwrap();
+    for cap in re.captures_iter(&text.clone()) {
+        let segment = cap["segment"].to_string();
+        let addition = segment
+            .split(" + ")
+            .fold(0, |acc, number| acc + number.parse::<u64>().unwrap());
+        text = text.replacen(&segment, &addition.to_string(), 1);
+    }
+    text.split(" * ")
+        .fold(1, |acc, number| acc * number.parse::<u64>().unwrap())
 }
 
 fn compute(expression: &str) -> u64 {
     let mut text = expression.to_string();
     let re = Regex::new(r"(?P<segment>\([\d\s\+\*]*\))").unwrap();
-    while let Some(_) = text.chars().find(|x| *x == '(' || *x == ')') {
+    while text.chars().find(|x| *x == '(' || *x == ')').is_some() {
         for cap in re.captures_iter(&text.clone()) {
             let segment = cap["segment"].to_string();
             text = text.replace(&segment, &compute_simple(&segment).to_string());
@@ -60,33 +48,33 @@ mod test {
 
     #[test]
     fn test_input() {
-        assert_eq!(7293529867931, solve_puzzle("input"));
+        assert_eq!(60807587180737, solve_puzzle("input"));
     }
 
     #[test]
     fn test_basic_example() {
-        assert_eq!(71, compute("1 + 2 * 3 + 4 * 5 + 6"));
+        assert_eq!(51, compute("1 + (2 * 3) + (4 * (5 + 6))"));
     }
 
     #[test]
     fn test_example_with_parenthesis() {
-        assert_eq!(26, compute("2 * 3 + (4 * 5)"));
+        assert_eq!(46, compute("2 * 3 + (4 * 5)"));
     }
 
     #[test]
     fn test_other_example_with_parenthesis() {
-        assert_eq!(437, compute("5 + (8 * 3 + 9 + 3 * 4 * 3)"));
+        assert_eq!(1445, compute("5 + (8 * 3 + 9 + 3 * 4 * 3)"));
     }
 
     #[test]
     fn test_example_with_nested_parenthesis() {
-        assert_eq!(12240, compute("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))"));
+        assert_eq!(669060, compute("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))"));
     }
 
     #[test]
     fn test_example_with_multiple_nested_parenthesis() {
         assert_eq!(
-            13632,
+            23340,
             compute("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2")
         );
     }
