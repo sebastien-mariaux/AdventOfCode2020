@@ -3,14 +3,17 @@ use std::collections::HashMap;
 use std::fs;
 
 fn main() {
+    let result = solve_puzzle();
+    println!("The result is: {}", result);
+}
+
+fn solve_puzzle() -> usize {
     let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
     let data = fs::read_to_string("input").expect("Error");
-    let result = data
-        .split("\n\n")
-        .map(|x| x.to_string().replace("\n", " "))
+    data.split("\n\n")
+        .map(|x| x.replace("\n", " "))
         .filter(|passport| is_valid(passport, &required_fields))
-        .count();
-    println!("The result is: {}", result);
+        .count()
 }
 
 fn is_valid(passport: &str, required_fields: &[&str]) -> bool {
@@ -23,11 +26,7 @@ fn is_valid(passport: &str, required_fields: &[&str]) -> bool {
 
     let mut data = HashMap::new();
     passport.to_string().split(' ').for_each(|segment| {
-        let split_segment: Vec<String> = segment
-            .to_string()
-            .split(':')
-            .map(|x| x.to_string())
-            .collect();
+        let split_segment: Vec<String> = segment.split(':').map(|x| x.to_string()).collect();
         data.insert(split_segment[0].clone(), split_segment[1].clone());
     });
 
@@ -102,7 +101,12 @@ fn check_year(year: &str, min: u32, max: u32) -> bool {
 mod test {
     use super::*;
 
-    fn test_valid_year(name: &str, year: &str) -> bool{
+    #[test]
+    fn test_input() {
+        assert_eq!(116, solve_puzzle());
+    }
+
+    fn test_valid_year(name: &str, year: &str) -> bool {
         let mut passport = HashMap::new();
         passport.insert(String::from(name), String::from(year));
         valid_eyr(&passport)
@@ -131,7 +135,6 @@ mod test {
     #[test]
     fn test_invalid_eyr_year_under_limit() {
         assert!(!test_valid_year("eyr", "2000"))
-
     }
 
     #[test]
@@ -164,7 +167,7 @@ mod test {
     fn test_invalid_height_cm() {
         assert!(!test_valid_height("hgt", "60cm"));
     }
-    
+
     #[test]
     fn test_invalid_height_wrong_unit() {
         assert!(!test_valid_height("hgt", "175mm"));
@@ -199,7 +202,8 @@ mod test {
     #[test]
     fn test_a_valid_passport_with_cid() {
         let required_fields: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
-        let passport = "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980 hcl:#623a2f cid:88";
+        let passport =
+            "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980 hcl:#623a2f cid:88";
         assert!(is_valid(&passport, &required_fields));
     }
 

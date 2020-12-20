@@ -1,5 +1,18 @@
 use std::fs;
 
+fn main() {
+    let result = solve_puzzle();
+    println!("And the result is {}", result);
+}
+
+fn solve_puzzle() -> usize {
+    vec![(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)]
+        .iter()
+        .fold(1, |acc, (down, right)| {
+            acc * run_slope(*down as u32, *right as u32)
+        })
+}
+
 struct Area {
     field_map: Vec<Vec<char>>,
     map_width: u32,
@@ -24,14 +37,14 @@ impl Area {
     fn slide(mut self, down: u32, right: u32) -> Option<Area> {
         self.row_position += down;
         if self.row_position >= self.map_height {
-            None
-        } else {
-            self.col_position += right;
-            if self.col_position >= self.map_width {
-                self.col_position -= self.map_width;
-            }
-            Some(self)
+            return None;
         }
+
+        self.col_position += right;
+        if self.col_position >= self.map_width {
+            self.col_position -= self.map_width;
+        }
+        Some(self)
     }
 
     fn has_tree(&self) -> bool {
@@ -39,26 +52,14 @@ impl Area {
     }
 }
 
-fn main() {
-    let product:u32 = vec![(1, 1), (1, 3), (1, 5), (1, 7), (2,1)]
-    .iter()
-    .fold(1, |acc, (down, right)| acc * run_slope(*down as u32, *right as u32));
-    println!("And the result is {}", product)
-}
-
-fn run_slope(down: u32, right: u32) -> u32 {
+fn run_slope(down: u32, right: u32) -> usize {
     let mut area = Area::new(read_lines());
     let mut trees_count = 0;
-    loop {
-        area = match area.slide(down, right) {
-            None => break,
-            Some(area) => {
-                if area.has_tree() {
-                    trees_count += 1
-                };
-                area
-            }
+    while let Some(new_area) = area.slide(down, right) {
+        if new_area.has_tree() {
+            trees_count += 1
         };
+        area = new_area
     }
     println!("We encountered {} trees on the way, ouch!", trees_count);
     trees_count
@@ -70,4 +71,14 @@ fn read_lines() -> Vec<Vec<char>> {
         .lines()
         .map(|x| x.to_string().chars().collect::<Vec<char>>())
         .collect()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_example() {
+        assert_eq!(3521829480, solve_puzzle());
+    }
 }

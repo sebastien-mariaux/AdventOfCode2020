@@ -1,6 +1,16 @@
 use regex::Regex;
 use std::fs;
 
+fn main() {
+    let result = solve_puzzle();
+    println!("And the result is: {}", result);
+}
+
+fn solve_puzzle() -> usize {
+    let data = read_lines();
+    data.iter().filter(|x| is_valid(x)).count()
+}
+
 struct ParsedLine {
     first: u32,
     second: u32,
@@ -43,8 +53,12 @@ fn read_lines() -> Vec<ParsedLine> {
         .collect::<Vec<ParsedLine>>()
 }
 
-fn main() {
-    let data = read_lines();
-    let result = data.iter().filter(|x| is_valid(x)).count();
-    println!("And the result is: {}", result);
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_solution() {
+        assert_eq!(605, solve_puzzle());
+    }
 }

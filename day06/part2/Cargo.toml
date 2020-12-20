@@ -1,5 +1,5 @@
 [package]
-name = "twelfth"
+name = "day6-2"
 version = "0.1.0"
 authors = ["Sébastien Mariaux <sebastien.mariaux@protonmail.com>"]
 edition = "2018"

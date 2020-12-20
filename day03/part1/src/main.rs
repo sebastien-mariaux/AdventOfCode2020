@@ -1,5 +1,23 @@
 use std::fs;
 
+
+fn main() {
+    let result = solve_puzzle();
+    println!("We encountered {} trees on the way, ouch!", result);
+}
+
+fn solve_puzzle() -> usize {
+    let mut area = Area::new(read_lines());
+    let mut trees_count = 0;
+    while let Some(new_area) = area.slide(1, 3) {
+        if new_area.has_tree() {
+            trees_count += 1
+        };
+        area = new_area
+    };
+    trees_count
+}
+
 struct Area {
     field_map: Vec<Vec<char>>,
     map_width: u32,
@@ -24,37 +42,19 @@ impl Area {
     fn slide(mut self, down: u32, right: u32) -> Option<Area> {
         self.row_position += down;
         if self.row_position >= self.map_height {
-            None
-        } else {
-            self.col_position += right;
-            if self.col_position >= self.map_width {
-                self.col_position -= self.map_width;
-            }
-            Some(self)
+            return None;
+        } 
+
+        self.col_position += right;
+        if self.col_position >= self.map_width {
+            self.col_position -= self.map_width;
         }
+        Some(self)
     }
 
     fn has_tree(&self) -> bool {
         self.field_map[self.row_position as usize][self.col_position as usize] == '#'
     }
-}
-
-fn main() {
-    let mut area = Area::new(read_lines());
-    let mut trees_count = 0;
-    loop {
-        area = match area.slide(1, 3) {
-            None => break,
-            Some(area) => {
-                if area.has_tree() {
-                    trees_count += 1
-                };
-                println!("So far we-ve hit {} trees", trees_count);
-                area
-            }
-        };
-    }
-    println!("We encountered {} trees on the way, ouch!", trees_count);
 }
 
 fn read_lines() -> Vec<Vec<char>> {
@@ -63,4 +63,14 @@ fn read_lines() -> Vec<Vec<char>> {
         .lines()
         .map(|x| x.to_string().chars().collect::<Vec<char>>())
         .collect()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_example() {
+        assert_eq!(156, solve_puzzle());
+    }
 }

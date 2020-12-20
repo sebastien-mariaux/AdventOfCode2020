@@ -1,5 +1,5 @@
 [package]
-name = "twentieth"
+name = "day10-2"
 version = "0.1.0"
 authors = ["seba <smariaux@servebox.com>"]
 edition = "2018"
