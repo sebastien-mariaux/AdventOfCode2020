@@ -12,7 +12,7 @@ fn solve_puzzle(file_name: &str) -> usize {
     let mut split_data = data.split("\n\n");
     let data_rules = split_data.next().unwrap().to_string().replace("\"", "");
     let data_messages = split_data.next().unwrap().to_string();
-    let rules = data_rules
+    let mut rules = data_rules
         .lines()
         .map(|rule| {
             let mut split = rule.split(": ");
@@ -21,6 +21,13 @@ fn solve_puzzle(file_name: &str) -> usize {
             (index, value)
         })
         .collect::<BTreeMap<String, String>>();
+
+    // Update rules for part 2
+    let rule = rules.get_mut("8").unwrap();
+    *rule = "42 | 42 8".to_string();
+
+    let rule = rules.get_mut("11").unwrap();
+    *rule = "42 31 | 42 11 31".to_string();
 
     let mut main_rule = rules.get("0").unwrap().clone();
     main_rule = format!(" {} ", main_rule);
@@ -53,7 +60,7 @@ mod test {
 
     #[test]
     fn test_example() {
-        assert_eq!(2, solve_puzzle("example_data"));
+        assert_eq!(12, solve_puzzle("example_data"));
     }
 
     #[test]

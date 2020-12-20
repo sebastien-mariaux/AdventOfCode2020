@@ -10,3 +10,7 @@ bababa
 abbbab
 aaabbb
 aaaabbb
+
+0: a ((a a | b b) (a b | b a) | (a b | b a) (a a | b b)) b
+
+0: (a) (2 3 | 3 2) (b)
